@@ -18,9 +18,10 @@ var page = {};
     /* add single word to word_list */
     exports.create_word = function(w_obj) {
         /* build word link DOM object */
-        var d = $("<div class='word-link' />");
-        d.text(w_obj.spelling);
-        d.click(function() { exports.word_detail(w_obj.id) });
+        var d = $("<div />");
+        var s = $("<span class='word-link'>" + w_obj.spelling + "</span>");
+        d.append(s);
+        s.click(function() { exports.word_detail(w_obj.id) });
         /* add to word list */
         return {w_obj: w_obj, ref: d};
     }
@@ -100,8 +101,8 @@ var page = {};
                         words.push(obj);
                     }
                     /* sort on w_obj.spelling key */
-                    words.sort(function(w1, w2) {
-                        return w1.w_obj.spelling > w2.w_obj.spelling;
+                    words = words.sort(function(w1, w2) {
+                        return (w1.w_obj.spelling > w2.w_obj.spelling) ? 1 : -1;
                     });
                     /* now add to w_list */
                     for(var i=0,j=words.length; i<j; i++) {

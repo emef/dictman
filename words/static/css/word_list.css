@@ -1,9 +1,15 @@
 #word_list { clear: left; }
 #word_search, #word_list, #word_detail { float: left; }
 
+#word_search {
+    width: 100%;
+    background: #ccc;
+}
+
+#search_box { padding: 3px 5px; }
+
 #word_list {
     width: 20%;
-    background: #ccc;
 }
 
 #word_detail {
@@ -22,4 +28,14 @@
 
 #word_detail.detail > .word_content {
     display: block;
+}
+
+.word-link {
+    margin: 3px 0px;
+    cursor: pointer;
+    color: black;
+}
+
+.word-link:hover {
+    background: #ccffcc;
 }

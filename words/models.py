@@ -43,8 +43,8 @@ class Derivative(models.Model):
                  'meaning': self.meaning,
                  'pos': self.pos,
                  'sentences': [s.__unicode__() for s in self.sentence_set.all()]
-               }
-    
+               }  
+                 
     def __unicode__(self):
         return "D[%s]" % self.spelling
 
