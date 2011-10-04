@@ -1,10 +1,10 @@
-from words.models import Word, Derivative, Sentence, Synonym, Antonym
+from words.models import Word, Derivative, Meaning, Synonym, Antonym
 from django.contrib import admin
 
-class SentenceInline(admin.TabularInline):
-    model = Sentence
+class MeaningInline(admin.TabularInline):
+    model = Meaning
     extra = 1
-    
+
 class SynonymInline(admin.TabularInline):
     model = Synonym
     extra = 1
@@ -18,13 +18,13 @@ class DerivativeInline(admin.TabularInline):
     extra = 1
 
 class WordAdmin(admin.ModelAdmin):
-    inlines = [DerivativeInline, 
-               SentenceInline, 
+    inlines = [MeaningInline,
+               DerivativeInline, 
                SynonymInline,
                AntonymInline]
 
 class DerivativeAdmin(admin.ModelAdmin):
-    inlines = [SentenceInline]
+    inlines = [MeaningInline]
                
     
 admin.site.register(Word, WordAdmin)

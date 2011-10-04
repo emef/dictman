@@ -17,6 +17,8 @@ var page = {};
     
     /* add single word to word_list */
     exports.create_word = function(w_obj) {
+        /* to lower case */
+        w_obj.spelling = w_obj.spelling.toLowerCase();
         /* build word link DOM object */
         var d = $("<div />");
         var s = $("<span class='word-link'>" + w_obj.spelling + "</span>");
@@ -37,7 +39,7 @@ var page = {};
     }
 
     exports.filter = function(starts_with) {
-        var re = new RegExp("^" + starts_with), 
+        var re = new RegExp("^" + starts_with, "i"), 
             count = 0;
         exports.clear_words();
         for (var i=0, j=words.length; i<j; i++) {
@@ -113,7 +115,6 @@ var page = {};
                     for(var i=0,j=words.length; i<j; i++) {
                         exports.add_word(words[i]);
                     }
-
                 }
             }
         });
