@@ -10,10 +10,17 @@ POS_CHOICES = (
     ('adj', 'adjective',),
     ('adv', 'adverb',),
 )
+LEVEL_CHOICES = (
+    (1, '1'),
+    (2, '2'),
+    (3, '3'),
+    (4, '4'),
+    (5, '5'),
+)
     
 class Word(models.Model):
     spelling = models.CharField(max_length=150)
-
+    level = models.IntegerField(choices=LEVEL_CHOICES, blank=True)
     pos = models.CharField(max_length=30, choices=POS_CHOICES)
 
     def to_dict(self):

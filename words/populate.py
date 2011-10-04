@@ -31,6 +31,7 @@ def populate(n):
 
     for sp in rnd_words:
         w = Word(spelling=sp, pos='v')
+        w.level = int(ceil(random() * 5))
         w.save()
         w.meaning_set.add(Meaning(text='generic meaning for %s' % sp, 
                                   example='generic example for %s' % sp))

@@ -5,6 +5,18 @@ var page = {};
     /* url constants */
     var GET_WORD_IDS = "/api/get_word_ids",
         GET_WORD = function(id) { return "/api/get_word/" + id };
+    
+    /* POS map */
+    var POS_MAP = {
+        n: "noun",
+        v: "verb",
+        P: "Pronoun",
+        adj: "adjective",
+        adv: "adverb"
+    };
+    var POS = function(abrv) {
+        return POS_MAP[abrv];
+    }
 
     /* DOM references */
     var D_word_list,
@@ -71,12 +83,28 @@ var page = {};
 
     /* populate the word_detail area */
     exports.populate_detail = function(w_obj) {
-        var d = $("<div />");
-
-        /* clear old content */
+        var d = $("<div />")
+        var add_word = function(obj, tag) {
+            var sub = $("<div />"),
+                ol = $("<ol />");
+            if (!tag) tag = "h3";
+            sub.append($("<" + tag + ">" + obj.spelling + "</" + tag + ">"));
+            sub.append($("<div>" + POS(obj.pos) + "</div>"));
+            
+            for(var i=0, j=obj.meanings.length; i<j; i++) {
+                ol.append($("<li>" + obj.meanings[i].text + "</li>" +
+                            "<span><i>" + obj.meanings[i].example + "</i></span>"));
+            }
+            sub.append(ol);
+            d.append(sub);
+        }
+        /* Clear old content */
         D_word_content.children().remove();
-
-        d.append($("<h3>" + w_obj.spelling + "</h3>"));
+        
+        add_word(w_obj, "h2");
+        for(var i=0,j=w_obj.derivatives.length; i<j; i++) {
+            add_word(w_obj.derivatives[i]);
+        }
 
         D_word_content.append(d);
     }
