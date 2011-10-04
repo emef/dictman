@@ -1,0 +1,35 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <title>{% block title %}dictman{% endblock %}</title>
+    <script type="text/javascript" 
+            src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js">
+    </script>
+    <script type="text/javascript"
+            src="/static/js/base.js">
+    </script>
+    <link rel="stylesheet" href="/static/css/base.css" type="text/css" media="screen" />
+    {% block head %}
+    {% endblock head %}
+  </head>
+
+  <body>
+
+    <div id="top-strip">
+      <div class="logo">dictman</div>
+      <div class="account">
+        {% if user.is_authenticated %}
+        logged in as {{ user.username }} |
+        <a href="/profile/logout/">log out</a>
+        {% else %}
+        <a href="/profile/login/">login</a>
+        <a href="/profile/register/">register</a>
+        {% endif %}
+      </div>
+    </div>
+
+    
+    {% block body %} 
+    {% endblock %}
+    
+  </body>
+</html>

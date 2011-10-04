@@ -1,0 +1,23 @@
+{% extends "base.djhtml" %}
+
+{% block title %}
+word list
+{% endblock %}
+
+{% block head %}
+<script type="text/javascript"
+        src="/static/js/word_list.js">
+</script>
+<link rel="stylesheet" href="/static/css/word_list.css" type="text/css" media="screen" />
+{% endblock %}
+
+{% block body %}
+<div id="word_search">
+  search<input id="search_box" type="text" />
+</div>
+<div id="word_list"></div>
+<div id="word_detail">
+  <div class="load_content">loading...</div>
+  <div class="word_content"></div>
+</div>
+{% endblock %}

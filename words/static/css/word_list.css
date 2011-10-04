@@ -1,0 +1,25 @@
+#word_list { clear: left; }
+#word_search, #word_list, #word_detail { float: left; }
+
+#word_list {
+    width: 20%;
+    background: #ccc;
+}
+
+#word_detail {
+    width: 40%;
+    background: #ccffcc;
+}
+
+#word_detail > .load_content, 
+#word_detail > .word_content {
+    display: none;
+}
+
+#word_detail.loading > .load_content {
+    display: block;
+}
+
+#word_detail.detail > .word_content {
+    display: block;
+}

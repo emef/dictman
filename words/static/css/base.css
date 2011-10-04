@@ -1,0 +1,29 @@
+html,body { 
+    margin: 0 0; 
+    padding: 0 0;
+    font-family: sans-serif;
+}
+
+#top-strip {
+    background-color: #22223c;
+    color: #d8d8d8;
+    float: left;
+    width: 100%;
+    height: 1.5em;
+    padding-top: 0.3em;
+}
+
+#top-strip > .logo { 
+    padding-left: 0.3em;
+    letter-spacing: 0.075em;
+    float: left;
+}
+
+#top-strip > .account {
+    padding-right: 0.3em;
+    float : right;
+}
+
+#top-strip > .account a {
+    color: #d8d8d8;
+}

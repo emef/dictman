@@ -1,8 +1,16 @@
 # Django settings for dictman project.
+import sys
 
-PROJECT_DIR='/home/forbesm2/src/dictman'
+#PROJECT_DIR='/home/forbesm2/src/dictman'
+PROJECT_DIR='/Users/mattforbes/src/dictman'
+
+#add 3rd-party packages
+sys.path.append('%s/3rd-party' % PROJECT_DIR)
 
 AUTH_PROFILE_MODULE='profile.UserProfile'
+LOGIN_URL="/profile/login/"
+LOGIN_REDIRECT_URL="/"
+
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
