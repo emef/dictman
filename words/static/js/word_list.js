@@ -106,6 +106,12 @@ var page = {};
             add_word(w_obj.derivatives[i]);
         }
 
+        d.append($("<h3>SYNONYMS</h3>"));
+        d.append($("<span>" + w_obj.synonyms.join(", ") + "</span>"));
+
+        d.append($("<h3>ANTONYMS</h3>"));
+        d.append($("<span>" + w_obj.antonyms.join(", ") + "</span>"));
+
         D_word_content.append(d);
     }
         
