@@ -21,7 +21,6 @@ var page = {};
         var d = $("<div />");
         var s = $("<span class='word-link'>" + w_obj.spelling + "</span>");
         d.append(s);
-        s.click(function() { exports.word_detail(w_obj.id) });
         /* add to word list */
         return {w_obj: w_obj, ref: d};
     }
@@ -33,16 +32,22 @@ var page = {};
 
     /* given {w_obj, ref} object, add word to word_list */
     exports.add_word = function(obj) {
+        obj.ref.find("span").click(function() { exports.word_detail(obj.w_obj.id) });
         D_word_list.append(obj.ref);
     }
 
     exports.filter = function(starts_with) {
-        var re = new RegExp("^" + starts_with);
+        var re = new RegExp("^" + starts_with), 
+            count = 0;
         exports.clear_words();
         for (var i=0, j=words.length; i<j; i++) {
             if (re.test(words[i].w_obj.spelling)) {
                 exports.add_word(words[i]);
+                count++;
             }
+        }
+        if (count == 0) {
+            D_word_list.append($("<div>0 words match</div>"));
         }
     }
 
