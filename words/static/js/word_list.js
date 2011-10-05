@@ -69,7 +69,7 @@ var page = {};
     exports.word_detail = function(id) {
         D_word_detail.removeClass().addClass("loading");
         $.ajax({
-            type: "post",
+            type: "get",
             url: GET_WORD(id),
             dataType: "json",
             success: function(w_obj) {
@@ -130,7 +130,7 @@ var page = {};
         
         /* get word list */
         $.ajax({
-            type: "post",
+            type: "get",
             url: GET_WORD_IDS,
             dataType: "json",
             success: function(w_list) {

@@ -1,6 +1,7 @@
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
-from django.template.response import TemplateResponse, RequestContext
+from django.template.response import TemplateResponse
+from django.template import RequestContext
 from words.models import Word
 
 import simplejson as json
