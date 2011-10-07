@@ -2,7 +2,7 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
 from django.template import RequestContext
-from words.models import Word
+from words.models import Word, Derivative, Meaning, Synonym, Antonym
 
 import simplejson as json
 
@@ -19,3 +19,67 @@ def get_word_ids(request):
 def get_word(request, id):
     word = get_object_or_404(Word, id=id)
     return HttpResponse(word.to_json())
+
+def add_word(request):
+    try:
+        w_obj = json.loads(request.POST['w_obj'])
+        # first add word object
+        w = Word(spelling = w_obj['spelling'], 
+                 pos = w_obj['pos'], 
+                 level = w_obj['level'])
+        w.save()
+        #add meaning
+        w.meaning_set.create(text = w_obj['meanings'][0]['text'], 
+                             example = w_obj['meanings'][0]['example'])
+        #add derivatives
+        for d in w_obj['derivatives']:
+            deriv = w.derivative_set.create(spelling = d['spelling'], 
+                                              pos = d['pos'])
+            deriv.meaning_set.create(text = d['meanings'][0]['text'],
+                                     example = d['meanings'][0]['example'])
+
+        #now synonyms
+        [w.synonym_set.create(text=syn) for syn in w_obj['synonyms']]
+
+        #antonyms
+        [w.antonym_set.create(text=syn) for syn in w_obj['antonyms']]
+        
+        return HttpResponse(json.dumps({'spelling': w.spelling, 'id': w.id}))
+    except json.decoder.JSONDecodeError:
+        return HttpResponse("false")
+
+def edit_word(request):
+    try:
+        w_obj = json.loads(request.POST['w_obj'])
+        w = Word.objects.select_related().get(id=w_obj['id']);
+        w.spelling = w_obj['spelling']
+        w.pos = w_obj['pos']
+        w.level = w_obj['level']
+
+        m = w.meaning_set.all()[0]
+        m.text = w_obj['meanings'][0]['text']
+        m.example = w_obj['meanings'][0]['example']
+        m.save()
+
+        #remove old derivatives
+        w.derivative_set.all().delete()
+
+        #add new derivatives
+        for d in w_obj['derivatives']:
+            deriv = w.derivative_set.create(spelling = d['spelling'], 
+                                              pos = d['pos'])
+            deriv.meaning_set.create(text = d['meanings'][0]['text'],
+                                     example = d['meanings'][0]['example'])
+
+        #now synonyms
+        w.synonym_set.all().delete()
+        [w.synonym_set.create(text=syn) for syn in w_obj['synonyms']]
+
+        #antonyms
+        w.antonym_set.all().delete()
+        [w.antonym_set.create(text=syn) for syn in w_obj['antonyms']]
+
+        w.save()
+        return HttpResponse(json.dumps({'spelling': w.spelling, 'id': w.id}))
+    except json.decoder.JSONDecodeError:
+        return HttpResponse("false")

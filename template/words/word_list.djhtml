@@ -5,6 +5,9 @@ word list
 {% endblock %}
 
 {% block head %}
+<script type="text/javascript">
+  var is_admin = {% if user.is_superuser %} true {% else %} false {% endif %};
+</script>
 <script type="text/javascript"
         src="/static/js/word_list.js">
 </script>
@@ -12,11 +15,22 @@ word list
 {% endblock %}
 
 {% block body %}
-<div id="word_search">
-  search<input id="search_box" type="text" />
+<div id="bottom_bar">
+  <div class="search">
+    search<input id="search_box" type="text" />
+  </div>
+  <div class="new_word">
+    {% if user.is_superuser %}
+    <button id="new_word">new word</button>
+    {% endif %}
+  </div>
 </div>
 <div id="word_list"></div>
 <div id="word_detail">
+  <div class="load_content">loading...</div>
+  <div class="word_content"></div>
+</div>
+<div id="word_add">
   <div class="load_content">loading...</div>
   <div class="word_content"></div>
 </div>

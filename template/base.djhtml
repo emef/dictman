@@ -7,6 +7,9 @@
     <script type="text/javascript"
             src="/static/js/base.js">
     </script>
+    <script type="text/javascript"
+            src="/static/js/json2.js">
+    </script>
     <link rel="stylesheet" href="/static/css/base.css" type="text/css" media="screen" />
     {% block head %}
     {% endblock head %}

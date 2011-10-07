@@ -1,15 +1,25 @@
 #word_list { clear: left; }
-#word_search, #word_list, #word_detail { float: left; }
+#word_search, #word_list, #word_detail, #word_add { float: left; }
 
-#word_search {
+#bottom_bar {
     width: 100%;
     background: #ccc;
+    float: left;
+}
+
+#bottom_bar > .search {
+    float: left;
+}
+
+#bottom_bar > .new_word {
+    float: right;
 }
 
 #search_box { padding: 3px 5px; }
 
 #word_list {
     width: 20%;
+    background: #ccccff;
 }
 
 #word_detail {
@@ -17,18 +27,33 @@
     background: #ccffcc;
 }
 
+#word_add {
+    width: 40%;
+    background: #ffcccc;
+}
+
+#word_add input[type=text] {
+    width: 250px;
+}
+
+#word_add .derivatives {
+    padding-left: 25px;
+}
+
 #word_detail > .load_content, 
-#word_detail > .word_content {
+#word_detail > .word_content,
+#word_add > .load_content,
+#word_add > .word_content {
     display: none;
 }
 
-#word_detail.loading > .load_content {
+#word_detail.loading > .load_content,
+#word_detail.content > .word_content,
+#word_add.loading > .load_content,
+#word_add.content > .word_content{
     display: block;
 }
 
-#word_detail.detail > .word_content {
-    display: block;
-}
 
 .word-link {
     margin: 3px 0px;
