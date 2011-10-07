@@ -6,4 +6,5 @@ urlpatterns = patterns('words.views',
     url(r'api/get_word/(?P<id>\d+)', 'get_word'),
     url(r'api/add_word', 'add_word'),
     url(r'api/edit_word', 'edit_word'),
+    url(r'api/delete_word', 'delete_word'),
 )

@@ -83,3 +83,20 @@ def edit_word(request):
         return HttpResponse(json.dumps({'spelling': w.spelling, 'id': w.id}))
     except json.decoder.JSONDecodeError:
         return HttpResponse("false")
+
+def delete_word(request):
+    try:
+        id = json.loads(request.POST['id'])
+        w = Word.objects.select_related().get(id=id)
+        w.meaning_set.all().delete()
+        w.synonym_set.all().delete()
+        w.antonym_set.all().delete()
+        for d in w.derivative_set.all():
+            d.meaning_set.all().delete()
+            d.delete()
+        w.delete()
+        
+        return HttpResponse("true")
+    except json.decoder.JSONDecodeError:
+        return HttpResponse("false")
+    

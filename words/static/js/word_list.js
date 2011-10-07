@@ -181,7 +181,9 @@ function word_form(type, fn_complete, initial) {
     var GET_WORD_IDS = "/api/get_word_ids",
         GET_WORD = function(id) { return "/api/get_word/" + id },
         ADD_WORD = "/api/add_word",
-        EDIT_WORD = "/api/edit_word";
+        EDIT_WORD = "/api/edit_word",
+        DEL_WORD = "/api/delete_word";
+    
     
     /* POS map */
     var POS_MAP = {
@@ -248,6 +250,16 @@ function word_form(type, fn_complete, initial) {
     }
 
 /////////////////////////////////////////////////////////////////////////////////////////////
+    exports.get_id = function(spelling) {
+        for (var i=0; i<words.length; i++) {
+            if (spelling == words[i].w_obj.spelling) {
+                return  words[i].w_obj.id;
+            }
+        }
+        return null;
+    }
+
+/////////////////////////////////////////////////////////////////////////////////////////////
     /* query word detail info */
     exports.word_detail = function(id) {
         D_word_detail.removeClass().addClass("loading");
@@ -287,19 +299,13 @@ function word_form(type, fn_complete, initial) {
 
         /* add edit/delete button */
         if (is_admin) {
-            var id;
-            for (var i=0; i<words.length; i++) {
-                if (w_obj.spelling == words[i].w_obj.spelling) {
-                    id = words[i].w_obj.id;
-                    break;
-                }
-            }
+            var id = exports.get_id(w_obj.spelling);
             var edit_btn = $("<button>edit " + w_obj.spelling + "</button>");
             edit_btn.click(function() { exports.edit_word(w_obj, id) });
             D_word_content.append(edit_btn);
 
             var delete_btn = $("<button>delete " + w_obj.spelling + "</button>");
-            edit_btn.click(function() { exports.delete_word(w_obj, id) });
+            delete_btn.click(function() { exports.delete_word(w_obj, id) });
             D_word_content.append(delete_btn);
         }
         
@@ -388,7 +394,29 @@ function word_form(type, fn_complete, initial) {
 
 //////////////////////////////////////////////////////////////////////////////////////////////
     exports.delete_word = function(w_obj, id) {
-        
+        if (confirm("this will permanently remove " + w_obj.spelling + ", are you sure?")) {
+            D_word_detail.removeClass().addClass("loading");
+            $.ajax({
+                type: "post",
+                url: DEL_WORD,
+                data: {id: id},
+                dataType: "json",
+                success: function(obj) {
+                    D_word_detail.removeClass();
+                    if (obj) {
+                        for(var i=0; i<words.length; i++) {
+                            if (words[i].w_obj.id == id) {
+                                words[i] = words[words.length-1];
+                                words.pop();
+                                break;
+                            }
+                        }
+                        exports.refresh_word_list();
+                        
+                    }
+                }
+            });
+        }
     }
     
     exports.init = function() {
@@ -423,6 +451,7 @@ function word_form(type, fn_complete, initial) {
                     }
                     /* refresh (for first time) the word list */
                     exports.refresh_word_list();
+
                 }
             }
         });
