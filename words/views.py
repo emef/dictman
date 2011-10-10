@@ -3,12 +3,20 @@ from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
 from django.template import RequestContext
 from words.models import Word, Derivative, Meaning, Synonym, Antonym
+from words.xml import to_xml
 
 import simplejson as json
 
 def word_list(request):
     c = RequestContext(request, {})
     return TemplateResponse(request, 'words/word_list.djhtml', c)
+
+def xml(request, words=None):
+    words = Word.objects.select_related().all()
+    response = HttpResponse(mimetype='text/xml')
+    response['Content-Disposition'] = 'attachment; filename=dict.xml'
+    response.write(to_xml(words))
+    return response
 
 def get_word_ids(request):
     ws = [{'spelling': w.spelling,

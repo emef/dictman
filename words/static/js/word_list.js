@@ -284,7 +284,11 @@ function word_form(type, fn_complete, initial) {
                 ol = $("<ol />");
             if (!tag) tag = "h3";
             sub.append($("<" + tag + ">" + obj.spelling + "</" + tag + ">"));
-            sub.append($("<div>" + POS(obj.pos) + "</div>"));
+            if (obj.level) {
+                sub.append($("<div>level " + obj.level + ", " + POS(obj.pos) + "</div>"));
+            } else {
+                sub.append($("<div>" + POS(obj.pos) + "</div>"));
+            }
             
             for(var i=0, j=obj.meanings.length; i<j; i++) {
                 ol.append($("<li>" + obj.meanings[i].text + "</li>" +
