@@ -30,8 +30,4 @@ word list
   <div class="load_content">loading...</div>
   <div class="word_content"></div>
 </div>
-<div id="word_add">
-  <div class="load_content">loading...</div>
-  <div class="word_content"></div>
-</div>
 {% endblock %}
