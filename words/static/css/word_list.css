@@ -54,6 +54,10 @@
     display: block;
 }
 
+.meaning {
+    padding-left: 20px;
+    margin-bottom: 10px;
+}
 
 .word-link {
     margin: 3px 0px;

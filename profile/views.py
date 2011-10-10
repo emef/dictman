@@ -1,8 +1,8 @@
 from django.contrib.auth import authenticate, login
-from django.contrib.auth.forms import UserCreationForm
 from django.template.response import TemplateResponse
 from django.shortcuts import redirect
 from django.http import Http404
+from profile.models import UserCreationForm
 
 def register(request):
     if request.method == 'GET':
@@ -17,6 +17,8 @@ def register(request):
             if user is not None:
                 login(request, user)
             return redirect('/')
+        else:
+            return TemplateResponse(request, 'profile/register.djhtml', {'form': f})
     else:
         raise Http404
         

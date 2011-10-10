@@ -1,3 +1,7 @@
+/* fix console.log on browsers without */
+var console = console ? console 
+                      : { log: function(msg) { } };
+
 $(document).ajaxSend(function(event, xhr, settings) {
     function getCookie(name) {
         var cookieValue = null;

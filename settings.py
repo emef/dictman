@@ -2,7 +2,8 @@
 import sys
 
 #PROJECT_DIR='/home/forbesm2/src/dictman'
-PROJECT_DIR='/Users/mattforbes/src/dictman'
+#PROJECT_DIR='/Users/mattforbes/src/dictman'
+PROJECT_DIR='/home/matt/src/dictman'
 
 #add 3rd-party packages
 sys.path.append('%s/3rd-party' % PROJECT_DIR)
@@ -23,10 +24,10 @@ MANAGERS = ADMINS
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'dictman.db',                      # Or path to database file if using sqlite3.
-        'USER': '',                      # Not used with sqlite3.
-        'PASSWORD': '',                  # Not used with sqlite3.
+        'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
+        'NAME': 'dictman',                      # Or path to database file if using sqlite3.
+        'USER': 'dictman',                      # Not used with sqlite3.
+        'PASSWORD': 'devel',                  # Not used with sqlite3.
         'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
         'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
     }
@@ -82,6 +83,7 @@ ADMIN_MEDIA_PREFIX = '/static/admin/'
 # Additional locations of static files
 STATICFILES_DIRS = (
     '%s/words/static' % PROJECT_DIR, 
+    '%s/3rd-party/admin_static' % PROJECT_DIR,
 )
 
 # List of finder classes that know how to find static files in
