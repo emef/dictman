@@ -19,12 +19,36 @@
 
 #word_list {
     width: 20%;
-    background: #ccccff;
+}
+
+.word_item { 
+    margin: 5px 0px 10px 15px;
+    cursor: pointer;
+    color: black;
+}
+
+.word_item:hover > span {
+    text-decoration: underline;
+}
+
+.word_item > span {
+    font-size: 1.2em;
+}
+
+.word_item > div {
+    padding-left: 15px;
+    color: #666;
+    font-size: 0.9em;
 }
 
 #word_detail {
     width: 40%;
-    background: #ccffcc;
+    padding: 40px 40px;
+}
+
+#word_detail > .word_content {
+    padding: 5px 5px;
+    border: 1px solid #ccc;
 }
 
 #word_add {
@@ -55,12 +79,3 @@
 }
 
 
-.word-link {
-    margin: 3px 0px;
-    cursor: pointer;
-    color: black;
-}
-
-.word-link:hover {
-    background: #ccffcc;
-}

@@ -12,16 +12,23 @@ def word_list(request):
     return TemplateResponse(request, 'words/word_list.djhtml', c)
 
 def xml(request, words=None):
-    words = Word.objects.select_related().all()
+    words = Word.objects.select_related(depth=3).all()
     response = HttpResponse(mimetype='text/xml')
     response['Content-Disposition'] = 'attachment; filename=dict.xml'
     response.write(to_xml(words))
     return response
 
 def get_word_ids(request):
+    def get_or_default(lst, i, default):
+        try:
+            return lst[i].text
+        except IndexError:
+            return default
+        
     ws = [{'spelling': w.spelling,
+           'meaning': get_or_default(list(w.meaning_set.all()), 0, 'text'),
            'id': w.id} 
-          for w in Word.objects.all()]
+          for w in Word.objects.select_related(depth=1).all()]
     return HttpResponse(json.dumps(ws))
     
 def get_word(request, id):

@@ -214,9 +214,11 @@ function word_form(type, fn_complete, initial) {
         /* to lower case */
         w_obj.spelling = w_obj.spelling.toLowerCase();
         /* build word link DOM object */
-        var d = $("<div />");
-        var s = $("<span class='word-link'>" + w_obj.spelling + "</span>");
+        var d = $("<div class='word_item' />");
+        var s = $("<span class='word_link'>" + w_obj.spelling + "</span>");
+        var m = $("<div>" + w_obj.meaning + "</div>");
         d.append(s);
+        d.append(m);
         /* add to word list */
         return {w_obj: w_obj, ref: d};
     }
@@ -228,7 +230,7 @@ function word_form(type, fn_complete, initial) {
 
     /* given {w_obj, ref} object, add word to word_list */
     exports.add_word = function(obj) {
-        obj.ref.find("span").click(function() { exports.word_detail(obj.w_obj.id) });
+        obj.ref.click(function() { exports.word_detail(obj.w_obj.id) });
         D_word_list.append(obj.ref);
     }
 
