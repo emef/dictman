@@ -2,13 +2,33 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
 from django.template import RequestContext
+from django.conf import settings
+from django.contrib.auth import REDIRECT_FIELD_NAME
 from words.models import Word, Derivative, Meaning, Synonym, Antonym
+from words.xml import to_xml
 
 import simplejson as json
+
+def superuser_required(view_func):
+    def _wrapped_view(request, *args, **kwargs):
+        if request.user.is_superuser:
+            return view_func(request, *args, **kwargs)
+        else:
+            return HttpResponse("false")
+
+    return _wrapped_view
 
 def word_list(request):
     c = RequestContext(request, {})
     return TemplateResponse(request, 'words/word_list.djhtml', c)
+
+@superuser_required
+def xml(request, words=None):
+    words = Word.objects.select_related().all()
+    response = HttpResponse(mimetype='text/xml')
+    response['Content-Disposition'] = 'attachment; filename=dict.xml'
+    response.write(to_xml(words))
+    return response
 
 def get_word_ids(request):
     ws = [{'spelling': w.spelling,
@@ -20,6 +40,7 @@ def get_word(request, id):
     word = get_object_or_404(Word, id=id)
     return HttpResponse(word.to_json())
 
+@superuser_required
 def add_word(request):
     try:
         w_obj = json.loads(request.POST['w_obj'])
@@ -29,14 +50,16 @@ def add_word(request):
                  level = w_obj['level'])
         w.save()
         #add meaning
-        w.meaning_set.create(text = w_obj['meanings'][0]['text'], 
-                             example = w_obj['meanings'][0]['example'])
+        for m in w_obj['meanings']:
+            w.meaning_set.create(text = m['text'],
+                                 example = m['example'])
         #add derivatives
         for d in w_obj['derivatives']:
             deriv = w.derivative_set.create(spelling = d['spelling'], 
-                                              pos = d['pos'])
-            deriv.meaning_set.create(text = d['meanings'][0]['text'],
-                                     example = d['meanings'][0]['example'])
+                                            pos = d['pos'])
+            for m in d['meanings']:
+                deriv.meaning_set.create(text = m['text'],
+                                     example = m['example'])
 
         #now synonyms
         [w.synonym_set.create(text=syn) for syn in w_obj['synonyms']]
@@ -48,6 +71,7 @@ def add_word(request):
     except json.decoder.JSONDecodeError:
         return HttpResponse("false")
 
+@superuser_required
 def edit_word(request):
     try:
         w_obj = json.loads(request.POST['w_obj'])
@@ -56,20 +80,25 @@ def edit_word(request):
         w.pos = w_obj['pos']
         w.level = w_obj['level']
 
-        m = w.meaning_set.all()[0]
-        m.text = w_obj['meanings'][0]['text']
-        m.example = w_obj['meanings'][0]['example']
-        m.save()
+        #remove old meanings
+        w.meaning_set.all().delete()
 
+        #add meanings
+        for m in w_obj['meanings']:
+            w.meaning_set.create(text = m['text'],
+                                 example = m['example'])
+            
         #remove old derivatives
         w.derivative_set.all().delete()
 
         #add new derivatives
         for d in w_obj['derivatives']:
             deriv = w.derivative_set.create(spelling = d['spelling'], 
-                                              pos = d['pos'])
-            deriv.meaning_set.create(text = d['meanings'][0]['text'],
-                                     example = d['meanings'][0]['example'])
+                                            pos = d['pos'])
+            #add meanings
+            for m in d['meanings']:
+                deriv.meaning_set.create(text = m['text'],
+                                         example = m['example'])
 
         #now synonyms
         w.synonym_set.all().delete()
@@ -84,6 +113,7 @@ def edit_word(request):
     except json.decoder.JSONDecodeError:
         return HttpResponse("false")
 
+@superuser_required
 def delete_word(request):
     try:
         id = json.loads(request.POST['id'])

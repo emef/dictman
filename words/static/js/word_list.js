@@ -16,7 +16,7 @@ function empty_w_obj() {
 }
 
 function word_form(type, fn_complete, initial) {
-    var d = $("#word_add > .word_content");
+    var d = $("#word_detail > .word_content");
     var initial = initial && initial.spelling ? initial : empty_w_obj();
     var main = $("<div />");
     var deriv = $("<div class='derivatives'/>");
@@ -82,9 +82,8 @@ function word_form(type, fn_complete, initial) {
         var errors = fn_verify(w_obj);
         if (errors.length == 0) {
             //d.children().remove();
-            //D_add_word.removeClass().addClass("loading");
-            console.log(w_obj);
-//            fn_complete(w_obj);
+            //D_word_detail.removeClass().addClass("loading");
+            fn_complete(w_obj);
         } else {
             errors_ul.children().remove();
             for (var i=0; i<errors.length; i++) {
@@ -314,7 +313,11 @@ function word_form(type, fn_complete, initial) {
                 ol = $("<ol />");
             if (!tag) tag = "h3";
             sub.append($("<" + tag + ">" + obj.spelling + "</" + tag + ">"));
-            sub.append($("<div>" + POS(obj.pos) + "</div>"));
+            if (obj.level) {
+                sub.append($("<div>level " + obj.level + ", " + POS(obj.pos) + "</div>"));
+            } else {
+                sub.append($("<div>" + POS(obj.pos) + "</div>"));
+            }
             
             for(var i=0, j=obj.meanings.length; i<j; i++) {
                 ol.append($("<li>" + obj.meanings[i].text + "</li>" +
@@ -355,16 +358,16 @@ function word_form(type, fn_complete, initial) {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
     exports.start_add_word = function() {
-        D_add_word.removeClass().addClass("content");
+        D_word_detail.removeClass().addClass("content");
         var fn_add = function (w_obj) {
-            D_add_word.removeClass().addClass("loading");
+            D_word_detail.removeClass().addClass("loading");
             $.ajax({
                 type: "post",
                 url: ADD_WORD,
                 data: {w_obj: JSON.stringify(w_obj)},
                 dataType: "json",
                 success: function(obj) { 
-                    D_add_word.removeClass();
+                    D_word_detail.removeClass();
                     if (obj) {
                         obj = exports.create_word(obj);
                         words.push(obj);
@@ -392,17 +395,17 @@ function word_form(type, fn_complete, initial) {
 
 /////////////////////////////////////////////////////////////////////////////////////////////
     exports.edit_word = function(old_w_obj, id) {
-        D_add_word.removeClass().addClass("content");
+        D_word_detail.removeClass().addClass("content");
         var fn_edit = function(w_obj) {
             w_obj.id = id;
-            D_add_word.removeClass().addClass("loading");
+            D_word_detail.removeClass().addClass("loading");
             $.ajax({
                 type: "post",
                 url: EDIT_WORD,
                 data: {w_obj: JSON.stringify(w_obj)},
                 dataType: "json",
                 success: function(obj) { 
-                    D_add_word.removeClass();
+                    D_word_detail.removeClass();
                     if (obj) {
                         if (w_obj.spelling != old_w_obj.spelling) {
                             /*  HERE find old, move to end, pop, add new  */
