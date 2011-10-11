@@ -14,13 +14,13 @@ Login to dictman
 
 <form method="post" action="{% url 'django.contrib.auth.views.login' %}">
 {% csrf_token %}
-<table>
+<table class="form_table">
 <tr>
-    <td>{{ form.username.label_tag }}</td>
+    <th>Email Address</th>
     <td>{{ form.username }}</td>
 </tr>
 <tr>
-    <td>{{ form.password.label_tag }}</td>
+    <th>{{ form.password.label_tag }}</th>
     <td>{{ form.password }}</td>
 </tr>
 </table>

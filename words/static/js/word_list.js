@@ -54,23 +54,28 @@ function word_form(type, fn_complete, initial) {
         w_obj.spelling = main.find("input[name=spelling]").val();
         w_obj.pos = main.find("select[name=pos]").val();
         w_obj.level = main.find("select[name=level]").val();
-        w_obj.meanings = [{
-            text: main.find("input[name=meaning]").val(),
-            example: main.find("input[name=example]").val()
-        }];
+        var m_objs = main.find(".meanings > .meaning");
+        w_obj.meanings = [];
+            for (var i=0; i<m_objs.length; i++) {
+                w_obj.meanings.push({text: $(m_objs[i]).find("input[name=meaning]").val(),
+                                     example: $(m_objs[i]).find("input[name=example]").val()});
+            }
         w_obj.synonyms = fn_make_array(syn.find("input[name=synonyms]").val());
         w_obj.antonyms = fn_make_array(ant.find("input[name=antonyms]").val());
 
         w_obj.derivatives = []; 
         deriv.find("> div").map(function (i, der) {
             var d = $(der);
+            var m_objs = d.find(".meaning");
+            var meanings = [];
+            for (var i=0; i<m_objs.length; i++) {
+                meanings.push({text: $(m_objs[i]).find("input[name=meaning]").val(),
+                               example: $(m_objs[i]).find("input[name=example]").val()});
+            }
             w_obj.derivatives.push(
                 { spelling: d.find("input[name=spelling]").val(),
                   pos: d.find("select").val(),
-                  meanings: [{
-                      text: d.find("input[name=meaning]").val(),
-                      example: d.find("input[name=example]").val()
-                  }]
+                  meanings: meanings
                 });
         });
 
@@ -119,6 +124,13 @@ function word_form(type, fn_complete, initial) {
         return $("<div>" + name + ": " + 
                  "<input type='text' name='" + name + "' value='" + value + "' /></div>");
     }
+    var fn_make_meaning = function(m_obj) {
+        var m_obj = m_obj && m_obj.text ? m_obj : {text:"", example:""};
+        var div = $("<div class='meaning' />");
+        div.append($("<div>meaning: <input name='meaning' type='text' value='" + m_obj.text + "' /></div>"));
+        div.append($("<div>example: <input name='example' type='text' value='" + m_obj.example + "' /></div>"));
+        return div;
+    }
 
     var fn_add_deriv = function(d_obj) {
         var d_obj = d_obj && d_obj.spelling ? d_obj : empty_w_obj();
@@ -126,8 +138,16 @@ function word_form(type, fn_complete, initial) {
         sub.append($("<h4>derivative " + d_num + "</h4>"));
         sub.append(fn_pos(d_obj.pos));
         sub.append(fn_div_input("spelling", d_obj.spelling));
-        sub.append(fn_div_input("meaning", d_obj.meanings[0].text));
-        sub.append(fn_div_input("example", d_obj.meanings[0].example));
+        /* meanings */
+        var btn_add_m = $("<button>add meaning</button>");
+        var m_header = $("<div><b>meanings</b></div>");
+        m_header.append(btn_add_m);
+        btn_add_m.click(function() { sub.append(fn_make_meaning({text:"", example:""})) });
+        sub.append(m_header);
+        
+        for (var i=0; i<d_obj.meanings.length; i++) {
+            sub.append(fn_make_meaning(d_obj.meanings[i]));
+        }
         
         deriv.append(sub);
         d_num++;
@@ -152,8 +172,17 @@ function word_form(type, fn_complete, initial) {
     main.append(fn_pos(initial.pos));
     main.append(fn_level(initial.level));
     main.append(fn_div_input("spelling", initial.spelling));
-    main.append(fn_div_input("meaning", initial.meanings[0].text));
-    main.append(fn_div_input("example", initial.meanings[0].example));
+    /* meanings */
+    var m_div = $("<div class='meanings' />");
+    var m_header = $("<div><b>meanings</b></div>");
+    var btn_add_m = $("<button>add meaning</button>");
+    btn_add_m.click(function() { m_div.append(fn_make_meaning({text:"", example:""})) });
+    m_header.append(btn_add_m);
+    m_div.append(m_header);
+    for (var i=0; i<initial.meanings.length; i++) {
+        m_div.append(fn_make_meaning(initial.meanings[i]));
+    }
+    main.append(m_div);
     d.append(main);
 
     d.append($("<h3>Derivatives</h4>"));

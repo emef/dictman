@@ -7,7 +7,9 @@ Register for dictman
 {% block body %}
 <form id="register" action="" method="post">
   {% csrf_token %}  
-  {{ form.as_p }}
+  <table class='form_table'>
+    {{ form }}
+  </table>
   <input type="submit" value="register" />
 </form>
 {% endblock %}
