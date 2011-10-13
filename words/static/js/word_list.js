@@ -560,7 +560,7 @@ function word_form(type, fn_complete, initial) {
         D_new_word_btn.click(exports.start_add_word);
 
 	/* get list of favorites if default mode */
-	if (MODE == 'default') {
+	if (IS_LOGGED_IN && MODE == 'default') {
 	    $.ajax({
 		type: "get",
 		url: GET_FAVORITES_IDS,
@@ -581,9 +581,9 @@ function word_form(type, fn_complete, initial) {
             dataType: "json",
             success: function(w_list) {
 		(function() {
-		    if (MODE != "default")
+		    if (!IS_LOGGED_IN || MODE != "default")
 			favorites = {};
-		    if (MODE == "default" && favorites == null) 
+		    if (IS_LOGGED_IN && MODE == "default" && favorites == null) 
 			setTimeout(arguments.callee, 200);
                     else if (w_list) {
 			words = [];
