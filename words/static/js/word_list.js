@@ -585,7 +585,7 @@ function word_form(type, fn_complete, initial) {
 			favorites = {};
 		    if (MODE == "default" && favorites == null) 
 			setTimeout(arguments.callee, 200);
-                    else (w_list) {
+                    else if (w_list) {
 			words = [];
 			/* build words array */
 			for(var i=0,j=w_list.length; i<j; i++) {
