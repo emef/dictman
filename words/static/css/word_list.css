@@ -1,10 +1,6 @@
 #word_list { clear: left; }
 #word_search, #word_list, #word_detail, #word_add { float: left; }
 
-body > form {
-    float: left;
-}
-
 #bottom_bar {
     width: 100%;
     background: #ccc;

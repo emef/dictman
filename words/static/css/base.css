@@ -4,6 +4,10 @@ html,body {
     font-family: sans-serif;
 }
 
+body > form {
+    float: left;
+}
+
 #top-strip {
     background-color: #22223c;
     color: #d8d8d8;
