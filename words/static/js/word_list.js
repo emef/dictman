@@ -581,11 +581,11 @@ function word_form(type, fn_complete, initial) {
             dataType: "json",
             success: function(w_list) {
 		(function() {
+		    if (MODE != "default")
+			favorites = {};
 		    if (MODE == "default" && favorites == null) 
 			setTimeout(arguments.callee, 200);
-		    else if (MODE != "default")
-			favorites = {};
-                    if (w_list) {
+                    else (w_list) {
 			words = [];
 			/* build words array */
 			for(var i=0,j=w_list.length; i<j; i++) {
