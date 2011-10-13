@@ -208,10 +208,13 @@ function word_form(type, fn_complete, initial) {
 
     /* url constants */
     var GET_WORD_IDS = "/api/get_word_ids",
+        GET_FAVORITES_IDS = "/api/get_favorites_ids",
         GET_WORD = function(id) { return "/api/get_word/" + id },
         ADD_WORD = "/api/add_word",
         EDIT_WORD = "/api/edit_word",
-        DEL_WORD = "/api/delete_word";
+        DEL_WORD = "/api/delete_word",
+        ADD_TO_FAV = "/api/add_to_fav",
+        REMOVE_FAV = "/api/remove_fav";
     
     
     /* POS map */
@@ -231,11 +234,11 @@ function word_form(type, fn_complete, initial) {
         D_word_detail,
         D_word_content,
         D_searchbox,
-        D_new_word_btn,
-        D_add_word;
+        D_new_word_btn;
     
     /* globals */
-    var words; /* holds all known words (for searching) */
+    var words = null; /* holds all known words (for searching) */
+    var favorites = null;
 
 //////////////////////////////////////////////////////////////////////////////////////////////
     /* add single word to word_list */
@@ -243,7 +246,8 @@ function word_form(type, fn_complete, initial) {
         /* to lower case */
         w_obj.spelling = w_obj.spelling.toLowerCase();
         /* build word link DOM object */
-        var d = $("<div class='word_item' />");
+	var classes = "word_item " + (favorites[w_obj.spelling] ? "fav" : "");
+        var d = $("<div class='" + classes + "' />");
         var s = $("<span class='word_link'>" + w_obj.spelling + "</span>");
         var m = $("<div>" + w_obj.meaning + "</div>");
         d.append(s);
@@ -310,6 +314,8 @@ function word_form(type, fn_complete, initial) {
     /* populate the word_detail area */
     exports.populate_detail = function(w_obj) {
         var d = $("<div />")
+	var id = exports.get_id(w_obj.spelling);
+	
         var add_word = function(obj, tag) {
             var sub = $("<div />"),
                 ol = $("<ol />");
@@ -333,8 +339,7 @@ function word_form(type, fn_complete, initial) {
         D_word_content.children().remove();
 
         /* add edit/delete button */
-        if (is_admin) {
-            var id = exports.get_id(w_obj.spelling);
+        if (IS_ADMIN) {
             var edit_btn = $("<button>edit " + w_obj.spelling + "</button>");
             edit_btn.click(function() { exports.edit_word(w_obj, id) });
             D_word_content.append(edit_btn);
@@ -343,7 +348,22 @@ function word_form(type, fn_complete, initial) {
             delete_btn.click(function() { exports.delete_word(w_obj, id) });
             D_word_content.append(delete_btn);
         }
-        
+
+	/* add favorites button */
+	if (IS_LOGGED_IN) {
+	    var is_fav = favorites[w_obj.spelling];
+	    if (MODE == "default" && !is_fav) {
+		var fav_btn = $("<button>add " + w_obj.spelling + " to favorites</button>");
+		fav_btn.click(function() { exports.add_to_fav(fav_btn, w_obj, id) });
+		D_word_content.append(fav_btn);
+	    } 
+	    if (MODE != "default" || is_fav) {
+		var fav_btn = $("<button>remove " + w_obj.spelling + " from favorites</button>");
+		fav_btn.click(function() { exports.remove_fav(fav_btn, w_obj, id) });
+		D_word_content.append(fav_btn);
+	    }
+	}
+	
         add_word(w_obj, "h2");
         for(var i=0,j=w_obj.derivatives.length; i<j; i++) {
             add_word(w_obj.derivatives[i]);
@@ -453,7 +473,75 @@ function word_form(type, fn_complete, initial) {
             });
         }
     }
-    
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+    exports.add_to_fav = function(fav_btn, w_obj, id) {
+	var parent = fav_btn.parent()
+	var status = $("<div />");
+	fav_btn.remove();
+	status.text("adding to favorites...");
+	parent.prepend(status);
+        $.ajax({
+            type: "post",
+            url: ADD_TO_FAV,
+            data: {id: id},
+            dataType: "json",
+            success: function(obj) {
+                if (obj) {
+                    setTimeout(function() {
+			status.text("word added to favorites");
+			favorites[w_obj.spelling] = 1;
+			for(var i=0; i<words.length; i++) {
+			    if (words[i].w_obj.spelling == w_obj.spelling) {
+				$(words[i].ref).addClass("fav");
+				break;
+			    }
+			}
+			exports.word_detail(id);
+		    }, 500);
+                }
+            }
+        });
+    }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+    exports.remove_fav = function(fav_btn, w_obj, id) {
+	var parent = fav_btn.parent()
+	var status = $("<div />");
+	fav_btn.remove();
+	status.text("removing from favorites...");
+	parent.prepend(status);
+        $.ajax({
+            type: "post",
+            url: REMOVE_FAV,
+            data: {id: id},
+            dataType: "json",
+            success: function(obj) {
+                if (obj) {
+                    setTimeout(function() {
+			status.text("word removed from favorites");
+			favorites[w_obj.spelling] = false;
+			for(var i=0; i<words.length; i++) {
+			    if (words[i].w_obj.spelling == w_obj.spelling) {
+				$(words[i].ref).removeClass("fav");
+				if (MODE != "default") {
+				    words[i] = words[words.length - 1];
+				    words.pop();
+				    exports.refresh_word_list();
+				    D_word_detail.removeClass();
+				} else {
+				    exports.word_detail(id);
+				}
+				break;
+			    }
+			}
+		    }, 500);
+                }
+            }
+        });
+    }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
     exports.init = function() {
         /* initialize DOM references */
         D_word_list = $("#word_list");
@@ -470,24 +558,44 @@ function word_form(type, fn_complete, initial) {
 
         /* on click for add word */
         D_new_word_btn.click(exports.start_add_word);
+
+	/* get list of favorites if default mode */
+	if (MODE == 'default') {
+	    $.ajax({
+		type: "get",
+		url: GET_FAVORITES_IDS,
+		dataType: "json",
+		success: function(favs) {
+		    favorites = {};
+		    for(var i=0; i<favs.length; i++) {
+			favorites[favs[i].spelling] = 1;
+		    }
+		}
+	    });
+	}
         
         /* get word list */
         $.ajax({
             type: "get",
-            url: GET_WORD_IDS,
+            url: (MODE == 'default') ? GET_WORD_IDS : GET_FAVORITES_IDS,
             dataType: "json",
             success: function(w_list) {
-                if (w_list) {
-                    words = [];
-                    /* build words array */
-                    for(var i=0,j=w_list.length; i<j; i++) {
-                        var obj = exports.create_word(w_list[i]);
-                        words.push(obj);
+		(function() {
+		    if (MODE == "default" && favorites == null) 
+			setTimeout(arguments.callee, 200);
+		    else if (MODE != "default")
+			favorites = {};
+                    if (w_list) {
+			words = [];
+			/* build words array */
+			for(var i=0,j=w_list.length; i<j; i++) {
+                            var obj = exports.create_word(w_list[i]);
+                            words.push(obj);
+			}
+			/* refresh (for first time) the word list */
+			exports.refresh_word_list();
                     }
-                    /* refresh (for first time) the word list */
-                    exports.refresh_word_list();
-
-                }
+		})();
             }
         });
         

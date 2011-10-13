@@ -13,6 +13,11 @@ html,body {
     padding-top: 0.3em;
 }
 
+.logo > a {
+    color: #d8d8d8;
+    text-decoration: none;   
+}
+
 #top-strip > .logo { 
     padding-left: 0.3em;
     letter-spacing: 0.075em;

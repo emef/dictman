@@ -1,5 +1,6 @@
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
+from django.contrib.auth.decorators import login_required
 from django.template.response import TemplateResponse
 from django.template import RequestContext
 from django.conf import settings
@@ -19,8 +20,12 @@ def superuser_required(view_func):
     return _wrapped_view
 
 def word_list(request):
-    c = RequestContext(request, {})
-    return TemplateResponse(request, 'words/word_list.djhtml', c)
+    c = RequestContext(request, {'mode': 'default'})
+    return TemplateResponse(request, 'words/word_list.html', c)
+
+def favorites(request):
+    c = RequestContext(request, {'mode': 'favorites'} )
+    return TemplateResponse(request, 'words/word_list.html', c)
 
 @superuser_required
 def xml(request, words=None):
@@ -42,6 +47,23 @@ def get_word_ids(request):
            'id': w.id} 
           for w in Word.objects.select_related(depth=1).all()]
     return HttpResponse(json.dumps(ws))
+
+@login_required
+def get_favorites_ids(request):
+    def get_or_default(lst, i, default):
+        try:
+            return lst[i].text
+        except IndexError:
+            return default
+
+    ws = [{'spelling': w.spelling,
+           'meaning': get_or_default(list(w.meaning_set.all()), 0, 'text'),
+           'id': w.id} 
+          for w in request.user.userprofile.favorites.all()]
+
+    return HttpResponse(json.dumps(ws))
+          
+
     
 def get_word(request, id):
     word = get_object_or_404(Word, id=id)
@@ -137,3 +159,27 @@ def delete_word(request):
     except json.decoder.JSONDecodeError:
         return HttpResponse("false")
     
+@login_required
+def add_to_fav(request):
+    try:
+        id = json.loads(request.POST['id'])
+        word = get_object_or_404(Word, id=id)
+        request.user.userprofile.favorites.add(word)
+        request.user.userprofile.save()
+        
+        return HttpResponse("true")
+    except json.decoder.JSONDecodeError:
+        return HttpResponse("false")
+
+@login_required
+def remove_fav(request):
+    try:
+        id = json.loads(request.POST['id'])
+        word = get_object_or_404(Word, id=id)
+        request.user.userprofile.favorites.remove(word)
+        request.user.userprofile.save()
+        
+        return HttpResponse("true")
+    except json.decoder.JSONDecodeError:
+        return HttpResponse("false")
+

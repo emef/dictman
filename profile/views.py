@@ -7,7 +7,7 @@ from profile.models import UserCreationForm
 def register(request):
     if request.method == 'GET':
         f = UserCreationForm()
-        return TemplateResponse(request, 'profile/register.djhtml', {'form': f})
+        return TemplateResponse(request, 'profile/register.html', {'form': f})
     elif request.method == 'POST':
         post = request.POST
         f = UserCreationForm(post)
@@ -18,7 +18,7 @@ def register(request):
                 login(request, user)
             return redirect('/')
         else:
-            return TemplateResponse(request, 'profile/register.djhtml', {'form': f})
+            return TemplateResponse(request, 'profile/register.html', {'form': f})
     else:
         raise Http404
         

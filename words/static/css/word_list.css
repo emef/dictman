@@ -27,6 +27,10 @@
     color: black;
 }
 
+.word_item.fav {
+    background: #C6E2FF;   
+}
+
 .word_item:hover > span {
     text-decoration: underline;
 }
@@ -44,6 +48,9 @@
 #word_detail {
     width: 40%;
     padding: 40px 40px;
+    position: fixed;
+    left: 25%;
+    top: 4em;
 }
 
 #word_detail > .word_content {
