@@ -21,8 +21,12 @@ word list
   <div class="search">
     search<input id="search_box" type="text" />
   </div>
-  {% if user.is_authenticated %}
-  <a href="/favorites/"><button>view favorites</button></a>
+  {% if mode == 'default' %}
+      {% if user.is_authenticated %}
+      <a href="/favorites/"><button>view favorites</button></a>
+      {% endif %}
+  {% else %}
+      <a href="/"><button>view all</button></a>
   {% endif %}
   <div class="new_word">
     {% if user.is_superuser %}
