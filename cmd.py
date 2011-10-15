@@ -111,8 +111,20 @@ def add_word():
 # ADDING WORD
 #######################################################################
 def delete_word():
-    print 'delete word'
-
+    spelling = raw_input('which word should I delete? ')
+    try:
+        w = Word.objects.get(spelling=spelling)
+        if get_bool('really delete word %s? ' % w.spelling):
+            w.delete()
+            print 'successfully deleted %s' % w.spelling
+        else:
+            print 'did not delete %s' % w.spelling
+    except Word.DoesNotExist:
+        print 'could not find word in database'
+    if get_bool('delete another word? '):
+        delete_word()
+    
+    
 # MAIN PROGRAM
 #######################################################################
 def main():

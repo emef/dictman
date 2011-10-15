@@ -323,19 +323,24 @@ function word_form(type, fn_complete, initial) {
 	var id = exports.get_id(w_obj.spelling);
 	
         var add_word = function(obj, tag) {
-            var sub = $("<div />"),
+            var sub = $("<div class='word_container' />"),
                 ol = $("<ol />");
             if (!tag) tag = "h3";
-            sub.append($("<" + tag + ">" + obj.spelling + "</" + tag + ">"));
+            sub.append($("<" + tag + " class='word_header'>" + 
+                         obj.spelling + "</" + tag + ">"));
             if (obj.level) {
-                sub.append($("<div>level " + obj.level + ", " + POS(obj.pos) + "</div>"));
+                sub.append($("<div class='word_level'>level " 
+                             + obj.level + ", <span class='word_pos'>" 
+                             + POS(obj.pos) + "</span></div>"));
             } else {
-                sub.append($("<div>" + POS(obj.pos) + "</div>"));
+                sub.append($("<div class='word_pos'>" + POS(obj.pos) + "</div>"));
             }
             
             for(var i=0, j=obj.meanings.length; i<j; i++) {
-                ol.append($("<li>" + obj.meanings[i].text + "</li>" +
-                            "<span><i>" + obj.meanings[i].example + "</i></span>"));
+                ol.append($("<li class='word_meaning'>" + obj.meanings[i].text +
+                            "<span class='word_example'><i>" + 
+                            obj.meanings[i].example + 
+                            "</i></span></li>"));
             }
             sub.append(ol);
             d.append(sub);
@@ -359,7 +364,8 @@ function word_form(type, fn_complete, initial) {
 	if (IS_LOGGED_IN) {
 	    var is_fav = favorites[w_obj.spelling];
 	    if (MODE == "default" && !is_fav) {
-		var fav_btn = $("<button>add " + w_obj.spelling + " to favorites</button>");
+		var fav_btn = $("<button id='fav_btn'>add " 
+                                + w_obj.spelling + " to favorites</button>");
 		fav_btn.click(function() { exports.add_to_fav(fav_btn, w_obj, id) });
 		D_word_content.append(fav_btn);
 	    } 
@@ -376,13 +382,15 @@ function word_form(type, fn_complete, initial) {
         }
 
 	if (w_obj.synonyms.length > 0) {
-            d.append($("<h3>SYNONYMS</h3>"));
-            d.append($("<span>" + w_obj.synonyms.join(", ") + "</span>"));
+            d.append($("<h3 class='syn_ant_header'>SYNONYMS</h3>"));
+            d.append($("<span class='syn_ant_list'>" 
+                       + w_obj.synonyms.join(", ") + "</span>"));
 	}
 
 	if (w_obj.antonyms.length > 0) {
-            d.append($("<h3>ANTONYMS</h3>"));
-            d.append($("<span>" + w_obj.antonyms.join(", ") + "</span>"));
+            d.append($("<h3 class='syn_ant_header'>ANTONYMS</h3>"));
+            d.append($("<span class='syn_ant_list'>" 
+                       + w_obj.antonyms.join(", ") + "</span>"));
 	}
 
         D_word_content.append(d);

@@ -1,0 +1,42 @@
+##############################################
+How to Configure DictMan
+##############################################
+
+1. Create a mysql database, and a user with full privileges on that
+database.
+2. In the file settings.py make the following changes:
+    a) set PROJECT_DIR to the absolute path of the directory dictman lives in
+    b) set name and email correctly in the ADMINS variable
+    c) in DATABASES dictionary, set NAME to the name of the mysql database 
+       created for dictman
+    d) in DATABASES dictionary, set USER to the user created on the database
+    e) in DATABASES dictionary, set PASSWORD to the password for the user
+3. Run this command: './manage.py syncdb' and follow the prompts
+4. Run this command: './manage.py collectstatic' and answer 'yes'
+
+
+##############################################
+How to Use the Command-line Application
+##############################################
+
+1. Change directories to the DictMan project directory
+2. Run the script with "./cmd.py"
+3. To add a word, type "add" You will be prompted for all the word information
+4. To delete a word, type "delete" You will be prompted for the word to delete
+5. To quit, type "quit"
+
+
+##############################################
+How to Customize the website
+##############################################
+
+NOTE: Do not edit any of the files located in the directory 'static' this
+directory is automatically populated by the './manage collectstatic' command which
+should be run after changes to javascript or css files.
+
+The two css files are located at 'words/static/css/base.css' 
+and 'words/static/css/word_list.css'
+
+At the bottom of word_list.css are many css selectors labeled and commented with 
+what they apply to. You should be able to fully customize the display by changing
+these styles.

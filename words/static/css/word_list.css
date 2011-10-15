@@ -1,6 +1,7 @@
 #word_list { clear: left; }
 #word_search, #word_list, #word_detail, #word_add { float: left; }
 
+/* bar containing the search bar, favorites button, and new word button */
 #bottom_bar {
     width: 100%;
     background: #ccc;
@@ -17,61 +18,54 @@
 
 #search_box { padding: 3px 5px; }
 
+/* outer div containing words (on left hand side) */
 #word_list {
     width: 20%;
 }
 
+/* individual div contaning a word, and its first meaning */
 .word_item { 
     margin: 5px 0px 10px 15px;
     cursor: pointer;
     color: black;
 }
 
-.word_item.fav {
-    background: #C6E2FF;   
-}
-
+/* style applied to word spelling when div is hovered */
 .word_item:hover > span {
     text-decoration: underline;
 }
 
+/* class applied to word_items that have been 'favorite'd */
+.word_item.fav {
+    background: #C6E2FF;   
+}
+
+/* default style for word spelling */
 .word_item > span {
     font-size: 1.2em;
 }
 
+/* style for word's meaning */
 .word_item > div {
     padding-left: 15px;
     color: #666;
     font-size: 0.9em;
 }
 
+/* outer containing box for word detail/editing */
 #word_detail {
     width: 40%;
     padding: 40px 40px;
 }
 
+/* direct parent of info/edit box */
 #word_detail > .word_content {
     padding: 5px 5px;
     border: 1px solid #ccc;
 }
 
-#word_add {
-    width: 40%;
-    background: #ffcccc;
-}
-
-#word_add input[type=text] {
-    width: 250px;
-}
-
-#word_add .derivatives {
-    padding-left: 25px;
-}
-
 #word_detail > .load_content, 
-#word_detail > .word_content,
-#word_add > .load_content,
-#word_add > .word_content {
+#word_detail > .word_content {
     display: none;
 }
 
@@ -80,6 +74,49 @@
 #word_add.loading > .load_content,
 #word_add.content > .word_content{
     display: block;
+}
+
+/************************************************/
+/* word info styles */
+
+/* outer div containing a word/derivative info */
+.word_container {
+}
+
+/* h2 tag contaning the main word's spelling */
+h2.word_header {
+}
+
+/* h3 tag containing a derivative's spelling */
+h3.word_header {
+}
+
+/* applies to div containing word's level */
+.word_level {
+}
+
+/* applies to the div containing a word's part of speech */
+.word_pos {
+}
+
+/* applies to the list item containing a word/derivative meaning */
+.word_meaning {
+}
+
+/* applies to the span containing an example for a meaning */
+.word_example {
+} 
+
+/* applies to SYNONYMS and ANTONYMS header h3 tag */
+.syn_ant_header {
+}
+
+/* applies to synonyms or antonyms word list */
+.syn_ant_list {
+}
+ 
+/* the add to favorites button */
+#fav_btn {
 }
 
 .meaning {
