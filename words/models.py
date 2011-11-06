@@ -21,13 +21,11 @@ LEVEL_CHOICES = (
 class Word(models.Model):
     spelling = models.CharField(max_length=150)
     level = models.IntegerField(choices=LEVEL_CHOICES, blank=True)
-    pos = models.CharField(max_length=30, choices=POS_CHOICES)
     
     def to_dict(self):
         return { 'spelling': self.spelling,
                  'level': self.level,
                  'meanings': [m.to_dict() for m in self.meaning_set.all()],
-                 'pos': self.pos,
                  'derivatives': [d.to_dict() for d in self.derivative_set.all()],
                  'synonyms': [s.__unicode__() for s in self.synonym_set.all()],
                  'antonyms': [a.__unicode__() for a in self.antonym_set.all()]
@@ -35,11 +33,6 @@ class Word(models.Model):
     
     def to_json(self):
         return json.dumps(self.to_dict())
-
-    def pos_str(self):
-        for key,val in POS_CHOICES:
-            if self.pos == key:
-                return val
 
     def to_xml(self, doc):
         entry = doc.createElement('d:entry')
@@ -70,40 +63,46 @@ class Word(models.Model):
         for ant in self.antonym_set.all():
             entry.appendChild(make_index(ant.text))
 
-        #level
-        entry.appendChild(div(str(self.level)))
-
         def make_word(obj):
+            elmts = []
+
+            if hasattr(obj, 'level'):
+                elmts.append( div('Level %d' % obj.level) )
+            
             d = div()
             d.appendChild(tag('h1', obj.spelling))
-            entry.appendChild(d)
-
-            #POS
-            if hasattr(obj, 'pos'):
-                entry.appendChild(div('noun'))
-                #entry.appendChild(div(obj.pos_str()))
-
-            #meanings
-            m_div = div()
-            ol = tag('ol')
-            for m in obj.meaning_set.all():
-                li = tag('li', '%s :' % m.text)
-                span = tag('span')
-                ital = tag('i')
-                ital.appendChild(doc.createTextNode(m.example))
-                span.appendChild(ital)
-                li.appendChild(span)
-                ol.appendChild(li)
-
-            m_div.appendChild(ol)
-            d.appendChild(m_div)
+            elmts.append(d)
             
-            return d
+            pos_map = {}
+            for m in obj.meaning_set.all():
+                key = m.pos_str()
+                if not key in pos_map:
+                    pos_map[key] = []
+                    
+                pos_map[key].append(m)
+
+            for key, ms in pos_map.items():
+                elmts.append(div( key ))
+                m_div = div()
+                ol = tag('ol')
+                for m in ms:
+                    li = tag('li', '%s :' % m.text)
+                    span = tag('span')
+                    ital = tag('i', m.example)
+                    span.appendChild(ital)
+                    li.appendChild(span)
+                    ol.appendChild(li)
+
+                m_div.appendChild(ol)
+                elmts.append(m_div)
+            
+            return elmts
             
         #main word
-        entry.appendChild(make_word(self))
-        for d in self.derivative_set.all():
-            entry.appendChild(make_word(d))
+        for d in [self] + list(self.derivative_set.all()):
+            elmts = make_word(d)
+            for elmt in elmts:
+                entry.appendChild(elmt)
 
         #synonyms
         h = tag('h3', 'SYNONYMS')
@@ -125,13 +124,10 @@ class Word(models.Model):
 class Derivative(models.Model):
     parent = models.ForeignKey(Word)
     spelling = models.CharField(max_length=150)
-    meaning = models.CharField(max_length=600)
-    pos = models.CharField(max_length=30, choices=POS_CHOICES)
     
     def to_dict(self):
         return { 'spelling': self.spelling,
                  'meanings': [m.to_dict() for m in self.meaning_set.all()],
-                 'pos': self.pos,
                  }  
                  
     def __unicode__(self):
@@ -154,9 +150,17 @@ class BaseProperty(models.Model):
 
 class Meaning(BaseProperty):
     example = models.CharField(max_length=600, blank=True)
+    pos = models.CharField(max_length=30, choices=POS_CHOICES)
+
+    def pos_str(self):
+        for key,val in POS_CHOICES:
+            if self.pos == key:
+                return val
+
 
     def to_dict(self):
         return { 'text': self.text,
+                 'pos': self.pos,
                  'example': self.example
                }
     

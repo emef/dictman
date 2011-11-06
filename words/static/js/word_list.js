@@ -3,11 +3,7 @@ var page = {};
 function empty_w_obj() {
    return { 
        spelling: "",
-       meanings: [{
-           text: "",
-           example: ""
-       }],
-       pos: "n",
+       meanings: [],
        level: 1,
        derivatives: [],
        antonyms: [],
@@ -25,39 +21,19 @@ function word_form(type, fn_complete, initial) {
     var ant = $("<div />");
     var save_btn = $("<button>save word</button>");
     var cancel_btn = $("<button>cancel</button>");
-    var errors_ul = $("<ul class='error_list'>");
     var fn_make_array = function(str) {
         var arr = str.replace(/\s+/g, '').split(',');
         return (arr[0] == "") ? [] : arr;
     }
-    var fn_verify = function(w_obj) {
-        var errors = [];
-        var fn_verify_property = function(obj, property, i) {
-            if (/^\s*$/.test(obj[property])) {
-                if (i != null) 
-                    errors.push(property + " required for derivative " + (i+1));
-                else
-                    errors.push(property + " required")
-            }
-        }
-        var properties = ["spelling", "meaning", "example"];
-        for (var i=0; i<properties.length; i++) {
-            fn_verify_property(w_obj, properties[i]);
-            for (var j=0; j<w_obj.derivatives.length; j++) {
-                fn_verify_property(w_obj.derivatives[j], properties[i], j);
-            }
-        }
-        return errors;
-    }
     var fn_save = function() {
         var w_obj = {};
         w_obj.spelling = main.find("input[name=spelling]").val();
-        w_obj.pos = main.find("select[name=pos]").val();
         w_obj.level = main.find("select[name=level]").val();
         var m_objs = main.find(".meanings > .meaning");
         w_obj.meanings = [];
             for (var i=0; i<m_objs.length; i++) {
                 w_obj.meanings.push({text: $(m_objs[i]).find("input[name=meaning]").val(),
+                                     pos:  $(m_objs[i]).find("select[name=pos]").val(),
                                      example: $(m_objs[i]).find("input[name=example]").val()});
             }
         w_obj.synonyms = fn_make_array(syn.find("input[name=synonyms]").val());
@@ -70,27 +46,18 @@ function word_form(type, fn_complete, initial) {
             var meanings = [];
             for (var i=0; i<m_objs.length; i++) {
                 meanings.push({text: $(m_objs[i]).find("input[name=meaning]").val(),
+                               pos: $(m_objs[i]).find("select[name=pos]").val(),
                                example: $(m_objs[i]).find("input[name=example]").val()});
             }
             w_obj.derivatives.push(
                 { spelling: d.find("input[name=spelling]").val(),
-                  pos: d.find("select").val(),
                   meanings: meanings
                 });
         });
 
-        var errors = fn_verify(w_obj);
-        if (errors.length == 0) {
-            //d.children().remove();
-            //D_word_detail.removeClass().addClass("loading");
-            fn_complete(w_obj);
-        } else {
-            errors_ul.children().remove();
-            for (var i=0; i<errors.length; i++) {
-                errors_ul.append($("<li>" + errors[i] + "</li>"));
-            }
-        }
-        
+        saved = w_obj;
+        fn_complete(w_obj);
+
     }
     var fn_cancel = function() {
 	fn_complete(null);
@@ -122,37 +89,58 @@ function word_form(type, fn_complete, initial) {
         return fn_dropdown([[1,1], [2,2], [3,3], [4,4], [5,5]],
                            "level",
                            val);
-        }
+    }
     var fn_div_input = function(name, value) {
         return $("<div>" + name + ": " + 
                  "<input type='text' name='" + name + "' value='" + value + "' /></div>");
     }
     var fn_make_meaning = function(m_obj) {
-        var m_obj = m_obj && m_obj.text ? m_obj : {text:"", example:""};
+        if ( typeof fn_make_meaning.counter == 'undefined' ) {
+            fn_make_meaning.counter = 0;
+        }
+        fn_make_meaning.counter++;
+        
+        var m_obj = m_obj && m_obj.text ? m_obj : {text:"", pos:"", example:""};
         var div = $("<div class='meaning' />");
-        div.append($("<div>meaning: <input name='meaning' type='text' value='" + m_obj.text + "' /></div>"));
-        div.append($("<div>example: <input name='example' type='text' value='" + m_obj.example + "' /></div>"));
+
+        div.append( $("<h3>Meaning ID: " + fn_make_meaning.counter + "</h3>") );
+        
+        div.append(fn_pos(m_obj.pos));
+        div.append(fn_div_input('meaning', m_obj.text));
+        div.append(fn_div_input('example', m_obj.example));
+        var del_btn = $("<div><button>delete meaning " + fn_make_meaning.counter + "</button></div>")
+        del_btn.click(function() { div.remove(); });
+        div.append(del_btn);
+
         return div;
     }
     var fn_add_deriv = function(d_obj) {
+        if ( typeof fn_add_deriv.counter == 'undefined' ) {
+            fn_add_deriv.counter = 0;
+        }
+        fn_add_deriv.counter++;
+        
         var d_obj = d_obj && d_obj.spelling ? d_obj : empty_w_obj();
-        var sub = $("<div />");
-        sub.append($("<div><b>derivative</b></div>"));
-	var btn_del = $("<button>remove derivative</button>");
-	btn_del.click(function() { sub.remove(); });
-	sub.append(btn_del);
-        sub.append(fn_pos(d_obj.pos));
+        var sub = $("<div class='derivative' />");
+
+        sub.append( $("<h3>Derivative ID: " + fn_add_deriv.counter + "</h3>") );
+        
         sub.append(fn_div_input("spelling", d_obj.spelling));
         /* meanings */
-        var btn_add_m = $("<button>add meaning</button>");
-        var m_header = $("<div><b>meanings</b></div>");
-        m_header.append(btn_add_m);
-        btn_add_m.click(function() { sub.append(fn_make_meaning({text:"", example:""})) });
-        sub.append(m_header);
+        var btn_add_m = $("<div><button>add meaning</button></div>");
+        sub.append(btn_add_m);
+
+        var meanings = $("<div/>");
+        sub.append(meanings);
+        btn_add_m.click(function() { meanings.append(fn_make_meaning({text:"", example:""})) });
         
         for (var i=0; i<d_obj.meanings.length; i++) {
             sub.append(fn_make_meaning(d_obj.meanings[i]));
         }
+
+        var btn_del = $("<div><button>remove derivative " + fn_add_deriv.counter +"</button></div>");
+	btn_del.click(function() { sub.remove(); });
+        sub.append(btn_del);
         
         deriv.append(sub);
     }
@@ -173,17 +161,13 @@ function word_form(type, fn_complete, initial) {
     /* patch together objects */
     var title = (type == "add") ? "Add new word" : "edit word: " + initial.spelling;
     main.append($("<h2>" + title + "</h2>"));
-    main.append(errors_ul);
-    main.append(fn_pos(initial.pos));
     main.append(fn_level(initial.level));
     main.append(fn_div_input("spelling", initial.spelling));
     /* meanings */
     var m_div = $("<div class='meanings' />");
-    var m_header = $("<div><b>meanings</b></div>");
     var btn_add_m = $("<button>add meaning</button>");
-    btn_add_m.click(function() { m_div.append(fn_make_meaning({text:"", example:""})) });
-    m_header.append(btn_add_m);
-    m_div.append(m_header);
+    btn_add_m.click(function() { m_div.append(fn_make_meaning({text:"", pos:"", example:""})) });
+    m_div.append(btn_add_m);
     for (var i=0; i<initial.meanings.length; i++) {
         m_div.append(fn_make_meaning(initial.meanings[i]));
     }
@@ -191,8 +175,8 @@ function word_form(type, fn_complete, initial) {
     d.append(main);
 
     d.append($("<h3>Derivatives</h4>"));
-    d.append(deriv);
     d.append(deriv_btn);
+    d.append(deriv);
     
     syn.append($("<h3>Synonyms</h4>"));
     syn.append($("<div>list: <input type='text' name='synonyms' /></div>"));
@@ -312,6 +296,7 @@ function word_form(type, fn_complete, initial) {
                 if (w_obj) {
                     exports.populate_detail(w_obj);
                     D_word_detail.removeClass().addClass("content");
+		    D_word_detail.offset({top: $(document).scrollTop() + 50});
                 }
             }
         });  
@@ -323,26 +308,36 @@ function word_form(type, fn_complete, initial) {
 	var id = exports.get_id(w_obj.spelling);
 	
         var add_word = function(obj, tag) {
-            var sub = $("<div class='word_container' />"),
-                ol = $("<ol />");
+            var sub = $("<div />");
             if (!tag) tag = "h3";
-            sub.append($("<" + tag + " class='word_header'>" + 
-                         obj.spelling + "</" + tag + ">"));
+            sub.append($("<" + tag + ">" + obj.spelling + "</" + tag + ">"));
             if (obj.level) {
-                sub.append($("<div class='word_level'>level " 
-                             + obj.level + ", <span class='word_pos'>" 
-                             + POS(obj.pos) + "</span></div>"));
-            } else {
-                sub.append($("<div class='word_pos'>" + POS(obj.pos) + "</div>"));
+                sub.append($("<div>level " + obj.level + "</div>"));
+            } 
+
+            var pos_map = {};
+            for(var i=0, j=obj.meanings.length; i<j; i++) {
+                var m = obj.meanings[i];
+                if (pos_map[m.pos] == undefined)
+                    pos_map[m.pos] = [];
+                
+                pos_map[m.pos].push(m);
+            }
+
+            for (key in pos_map) {
+                var ms = pos_map[key];
+                var defs = $("<div />");
+                var ol = $("<ol />");
+                defs.append( $("<div>" + POS_MAP[key] + "</div>") );
+                defs.append(ol);
+                for(var i=0; i<ms.length; i++) {
+                    ol.append($("<li>" + ms[i].text + "<br />" +
+                                "<span><i>" + obj.meanings[i].example + "</i></span>" +
+                                "</li>") );
+                }
+                sub.append(defs);
             }
             
-            for(var i=0, j=obj.meanings.length; i<j; i++) {
-                ol.append($("<li class='word_meaning'>" + obj.meanings[i].text +
-                            "<span class='word_example'><i>" + 
-                            obj.meanings[i].example + 
-                            "</i></span></li>"));
-            }
-            sub.append(ol);
             d.append(sub);
         }
         
@@ -364,8 +359,7 @@ function word_form(type, fn_complete, initial) {
 	if (IS_LOGGED_IN) {
 	    var is_fav = favorites[w_obj.spelling];
 	    if (MODE == "default" && !is_fav) {
-		var fav_btn = $("<button id='fav_btn'>add " 
-                                + w_obj.spelling + " to favorites</button>");
+		var fav_btn = $("<button>add " + w_obj.spelling + " to favorites</button>");
 		fav_btn.click(function() { exports.add_to_fav(fav_btn, w_obj, id) });
 		D_word_content.append(fav_btn);
 	    } 
@@ -382,15 +376,13 @@ function word_form(type, fn_complete, initial) {
         }
 
 	if (w_obj.synonyms.length > 0) {
-            d.append($("<h3 class='syn_ant_header'>SYNONYMS</h3>"));
-            d.append($("<span class='syn_ant_list'>" 
-                       + w_obj.synonyms.join(", ") + "</span>"));
+            d.append($("<h3>SYNONYMS</h3>"));
+            d.append($("<span>" + w_obj.synonyms.join(", ") + "</span>"));
 	}
 
 	if (w_obj.antonyms.length > 0) {
-            d.append($("<h3 class='syn_ant_header'>ANTONYMS</h3>"));
-            d.append($("<span class='syn_ant_list'>" 
-                       + w_obj.antonyms.join(", ") + "</span>"));
+            d.append($("<h3>ANTONYMS</h3>"));
+            d.append($("<span>" + w_obj.antonyms.join(", ") + "</span>"));
 	}
 
         D_word_content.append(d);
@@ -440,6 +432,7 @@ function word_form(type, fn_complete, initial) {
 /////////////////////////////////////////////////////////////////////////////////////////////
     exports.edit_word = function(old_w_obj, id) {
         D_word_detail.removeClass().addClass("content");
+	D_word_detail.offset({top: $(document).scrollTop()+50});
         var fn_edit = function(w_obj) {
 	    if (!w_obj) {
 		exports.word_detail(id);

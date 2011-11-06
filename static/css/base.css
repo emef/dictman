@@ -4,6 +4,10 @@ html,body {
     font-family: sans-serif;
 }
 
+body > form {
+    float: left;
+}
+
 #top-strip {
     background-color: #22223c;
     color: #d8d8d8;
@@ -11,6 +15,11 @@ html,body {
     width: 100%;
     height: 1.5em;
     padding-top: 0.3em;
+}
+
+.logo > a {
+    color: #d8d8d8;
+    text-decoration: none;   
 }
 
 #top-strip > .logo { 

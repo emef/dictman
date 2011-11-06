@@ -11,6 +11,6 @@ def to_xml(words):
     for w in words:
         dictionary.appendChild(w.to_xml(doc))
 
-    return doc.toxml()
+    return doc.toprettyxml()
     
     

@@ -38,19 +38,19 @@ def get_bool(prompt):
             return False
         print 'please enter one of: %s' % ', '.join(bool_options)
 
-def get_meaning(text_prompt, example_prompt):
+def get_meaning(pos_prompt, text_prompt, example_prompt):
     m = Meaning()
+    m.pos = get_pos(pos_prompt)
     m.text = raw_input(text_prompt)
     m.example = raw_input(example_prompt)
     return m
 
-def print_meaning(meaning, example, prefix):
-    print '%s%s\n%s%s\n' % (prefix, meaning, prefix, example)
+def print_meaning(pos, meaning, example, prefix):
+    print '%s%s\n%s%s\n%s%s\n' % (prefix, pos, prefix, meaning, prefix, example)
 
 def add_word():
     w = Word()
     w.spelling = raw_input('::: word spelling ::: >> ')
-    w.pos = get_pos('::: word POS ::: >> ')
     w.level = get_level('::: word level ::: >> ')
     
     #get meanings
@@ -62,7 +62,9 @@ def add_word():
             return 'add another meaning to %s? >> ' % spelling
         
     while(get_bool(meaning_prompt(meanings, w.spelling))):
-        meanings.append(get_meaning('::: meaning ::: >> ', '::: example ::: >> '))
+        meanings.append(get_meaning('::: POS ::: >> ', 
+                                    '::: meaning ::: >> ', 
+                                    '::: example ::: >> '))
 
     #get derivatives
     derivatives = []
@@ -75,25 +77,26 @@ def add_word():
     while(get_bool(derivative_prompt())):
         d = Derivative()
         d.spelling = raw_input('::: derivative spelling ::: >> ')
-        d.pos = get_pos('::: derivative POS ::: >> ')
-
+        
         d_meanings = []
         while(get_bool(meaning_prompt(d_meanings, d.spelling))):
-            d_meanings.append(get_meaning('::: meaning ::: >> ', '::: example ::: >> '))
+            d_meanings.append(get_meaning('::: POS ::: >> ',
+                                          '::: meaning ::: >> ', 
+                                          '::: example ::: >> '))
 
         derivatives.append((d, d_meanings))
 
     # confirm adding word
     print ''
-    print '%s (%s):\nlevel %d\n' % (w.spelling, w.pos, w.level)
+    print '%s:\nlevel %d\n' % (w.spelling, w.level)
     for m in meanings:
-        print_meaning(m.text, m.example, '    ')
+        print_meaning(m.pos, m.text, m.example, '    ')
 
     for d, ms in derivatives:
         prefix = '    '
-        print '%s%s (%s):\n' % (prefix, d.spelling, d.pos)
+        print '%s%s:\n' % (prefix, d.spelling)
         for m in ms:
-            print_meaning(m.text, m.example, 2*prefix)
+            print_meaning(m.pos, m.text, m.example, 2*prefix)
 
     if get_bool('add this word to the database? >> '):
         w.save()

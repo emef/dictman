@@ -75,20 +75,20 @@ def add_word(request):
         w_obj = json.loads(request.POST['w_obj'])
         # first add word object
         w = Word(spelling = w_obj['spelling'], 
-                 pos = w_obj['pos'], 
                  level = w_obj['level'])
         w.save()
         #add meaning
         for m in w_obj['meanings']:
             w.meaning_set.create(text = m['text'],
+                                 pos = m['pos'],
                                  example = m['example'])
         #add derivatives
         for d in w_obj['derivatives']:
-            deriv = w.derivative_set.create(spelling = d['spelling'], 
-                                            pos = d['pos'])
+            deriv = w.derivative_set.create(spelling = d['spelling'])
             for m in d['meanings']:
                 deriv.meaning_set.create(text = m['text'],
-                                     example = m['example'])
+                                         pos = m['pos'],
+                                         example = m['example'])
 
         #now synonyms
         [w.synonym_set.create(text=syn) for syn in w_obj['synonyms']]
@@ -106,7 +106,6 @@ def edit_word(request):
         w_obj = json.loads(request.POST['w_obj'])
         w = Word.objects.select_related().get(id=w_obj['id']);
         w.spelling = w_obj['spelling']
-        w.pos = w_obj['pos']
         w.level = w_obj['level']
 
         #remove old meanings
@@ -115,6 +114,7 @@ def edit_word(request):
         #add meanings
         for m in w_obj['meanings']:
             w.meaning_set.create(text = m['text'],
+                                 pos = m['pos'],
                                  example = m['example'])
             
         #remove old derivatives
@@ -122,11 +122,12 @@ def edit_word(request):
 
         #add new derivatives
         for d in w_obj['derivatives']:
-            deriv = w.derivative_set.create(spelling = d['spelling'], 
-                                            pos = d['pos'])
+            deriv = w.derivative_set.create(spelling = d['spelling'])
+                                            
             #add meanings
             for m in d['meanings']:
                 deriv.meaning_set.create(text = m['text'],
+                                         pos = m['pos'],
                                          example = m['example'])
 
         #now synonyms

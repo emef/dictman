@@ -114,13 +114,16 @@ h3.word_header {
 /* applies to synonyms or antonyms word list */
 .syn_ant_list {
 }
+
+.derivative {
+    margin: 15px 0px 0px 25px;
+}
  
 /* the add to favorites button */
 #fav_btn {
 }
 
 .meaning {
-    padding-left: 20px;
-    margin-bottom: 10px;
+    margin: 15px 0px 5px 25px;
 }
 
