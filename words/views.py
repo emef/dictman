@@ -43,7 +43,7 @@ def get_word_ids(request):
             return default
         
     ws = [{'spelling': w.spelling,
-           'meaning': get_or_default(list(w.meaning_set.all()), 0, 'text'),
+           'meaning': get_or_default(list(w.meaning_set.all()), 0, ''),
            'id': w.id} 
           for w in Word.objects.select_related(depth=1).all()]
     return HttpResponse(json.dumps(ws))
@@ -57,7 +57,7 @@ def get_favorites_ids(request):
             return default
 
     ws = [{'spelling': w.spelling,
-           'meaning': get_or_default(list(w.meaning_set.all()), 0, 'text'),
+           'meaning': get_or_default(list(w.meaning_set.all()), 0, ''),
            'id': w.id} 
           for w in request.user.userprofile.favorites.all()]
 
@@ -96,7 +96,15 @@ def add_word(request):
         #antonyms
         [w.antonym_set.create(text=syn) for syn in w_obj['antonyms']]
         
-        return HttpResponse(json.dumps({'spelling': w.spelling, 'id': w.id}))
+        def get_or_default(lst, i, default):
+            try:
+                return lst[i].text
+            except IndexError:
+                return default
+        
+        return HttpResponse(json.dumps({'spelling': w.spelling, 
+                                                'meaning': get_or_default(list(w.meaning_set.all()), 0, ''), 
+                                                'id': w.id}))
     except json.decoder.JSONDecodeError:
         return HttpResponse("false")
 
